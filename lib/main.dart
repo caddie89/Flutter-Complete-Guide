@@ -2,6 +2,9 @@
 // "material.dart" unlocks core features needed to run the app
 import 'package:flutter/material.dart';
 
+import './quiz.dart';
+import './result.dart';
+
 // void main() {
 // Default function that will be run first - automatically executed
 // "runApp()" is provided by "material.dart" - function that takes a widget
@@ -25,59 +28,82 @@ class MyApp extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return MyAppState();
+    return _MyAppState();
   }
 }
 
-class MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> {
   // data here is persistent
   // State holds the data used by the build()
-  var questionIndex = 0;
+  // Map where 'questionText' is the key and 'answers' is the value
+  // Map within a Map where 'text' is the key and 'score' is the value
+  final _questions = [
+    {
+      'questionText': 'What\'s your favorite color?',
+      'answers': [
+        {'text': 'Black', 'score': 10},
+        {'text': 'Red', 'score': 5},
+        {'text': 'Green', 'score': 3},
+        {'text': 'White', 'score': 1}
+      ],
+    },
+    {
+      'questionText': 'What\'s your favorite animal?',
+      'answers': [
+        {'text': 'Rabbit', 'score': 3},
+        {'text': 'Snake', 'score': 11},
+        {'text': 'Elephant', 'score': 5},
+        {'text': 'Lion', 'score': 9}
+      ],
+    },
+    {
+      'questionText': 'Who\'s your favorite instructor?',
+      'answers': [
+        {'text': 'Max', 'score': 1},
+        {'text': 'Max', 'score': 1},
+        {'text': 'Max', 'score': 1},
+        {'text': 'Max', 'score': 1}
+      ],
+    },
+  ];
 
-  void answerQuestion() {
+  var _questionIndex = 0;
+  var _totalScore = 0;
+
+  void _answerQuestion(int score) {
+    _totalScore += score;
+    // _totalScore = _totalScore + score - this performs the same operation
     setState(() {
-      questionIndex = questionIndex + 1;
+      _questionIndex = _questionIndex + 1;
     });
-    print(questionIndex);
+    print(_questionIndex);
+    // setState() updates Widget by calling the build() again
+    // build() rebuilds the Widget Tree
+    // Flutter is not going to re-render everything on the screen
+
+    if (_questionIndex < _questions.length) {
+      // the length is 3
+      print('We have more questions!');
+    } else {
+      print('No more questions!');
+    }
   }
 
   @override
   Widget build(BuildContext ctx) {
-    List<String> questions = [
-      'What\'s your favorite color?',
-      'What\'s your favorite animal?',
-    ];
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           title: Text('My First App'),
         ),
-        body: Column(
-          children: <Widget>[
-            Text(
-              questions[questionIndex],
-            ),
-            RaisedButton(
-              child: Text('Answer 1'),
-              onPressed:
-                  answerQuestion, // passing a pointer to the function, not the function result
-            ),
-            RaisedButton(
-              child: Text('Answer 2'),
-              onPressed: () =>
-                  print('Answer 2 chosen!'), // anonymous function/method
-            ),
-            RaisedButton(
-              child: Text('Answer 3'),
-              onPressed: () {
-                // ...
-                print('Answer 3 chosen!');
-              },
-            ),
-          ],
-          // the <Widget>[] tells Dart it will hold a list of Widgets
-        ),
+        // Ternary expressions - condition ? x1 expression (only column) : else block
+        body: _questionIndex < _questions.length
+            ? Quiz(
+                answerQuestion: _answerQuestion,
+                questionIndex: _questionIndex,
+                questions: _questions,
+              )
+            : Result(_totalScore),
       ),
     );
     // Scaffold gives a base page design, basic design, structure, and color scheme
